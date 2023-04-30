@@ -109,10 +109,8 @@ export const joinOrder = async(orderId, username) => {
 
 /// Read Order for an Owner, Only the Owner itself can access its own orders
 export const GetOwnerOrders = async(ownerId) => {
-  console.log(ownerId)
   const ownerInfo = await firestoreDb.collection("owners").doc(ownerId).get()
   const userOrders = ownerInfo.data() //Need to Fix
-  console.log(userOrders)
 
   return userOrders
 }

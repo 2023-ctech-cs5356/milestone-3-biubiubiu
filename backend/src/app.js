@@ -86,6 +86,7 @@ app.put("/api/join/:orderID", (req,res)=>{
   401 Unauthorized - Only signed in users can Join
 
   */
+  console.log(req.params.orderID==="3kL9alXRbAT49Mad2Z2h")
 
   if (!req.body.username){
     res.status(401).send("Only signed in users can Join")
@@ -122,7 +123,7 @@ app.delete("/api/delete/:orderID", (req,res) => {
   })
 })
 
-app.get("/api/owner/:ownerId", (req,res)=>{
+app.get("/api/owner/:ownerID", (req,res)=>{
   /* 
   Read All Orders for A Owner
 
@@ -131,8 +132,7 @@ app.get("/api/owner/:ownerId", (req,res)=>{
   400 No Order for the users or No such User
 
   */
-  console.log(req.params.ownerId==="WrfLu3AEhqTABwo8n1dMjdARlT92")
-  db.GetOwnerOrders(req.params.ownerId)
+  db.GetOwnerOrders(req.params.ownerID)
   .then((userOrder)=>{
     if (userOrder) {
       res.status(200).send(userOrder)
