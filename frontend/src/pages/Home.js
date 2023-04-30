@@ -34,7 +34,7 @@ const uiConfig = {
 function Home() {
 
   const handleSubmit = e => {
-    console.log(firebase.auth().currentUser.uid)
+    console.log(firebase.auth().currentUser.uid,firebase.auth().currentUser.displayName)
     e.preventDefault()
     fetch('/api/order',{
       method:"POST",
@@ -45,7 +45,9 @@ function Home() {
         from:e.target.from.value, 
         to:e.target.to.value,
         max:e.target.max.value,
-        ownerId: firebase.auth().currentUser.uid})
+        ownerId: firebase.auth().currentUser.uid,
+        owner: firebase.auth().currentUser.displayName
+      }),
     }).then(response=>{
       if (response.ok){
         console.log("Add Order Ok")
