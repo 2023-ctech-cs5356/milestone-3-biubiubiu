@@ -1,10 +1,11 @@
-import express from "express";
+import express, { response } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import cookieSession from "cookie-session";
 import bodyParser from "body-parser";
 import * as db from "./database.js";
+import { error } from "console";
 
 const app = express();
 app.use(
@@ -40,15 +41,19 @@ app.post("/api/order", (req, res) => {
   if (!req.body.ownerId){
     res.status(401).send("No user Logged in")
   } else {
-    const orderInfo = db.createOrder({
+    db.createOrder({
       from:req.body.from,
       to:req.body.to,
       ownerId: req.body.ownerId,
       owner:req.body.owner,
       max:req.body.max,
     })
-    
-    res.status(201).send(orderInfo)
+    .then((orderInfo)=>{
+      res.status(201).send(orderInfo)
+    })
+    .catch((error)=>{
+      res.status(400).send({error: error.massage})
+    })
   }
 });
 
@@ -58,15 +63,17 @@ app.get("/api/order", (req,res)=>{
 
   Return:
   200 Read
-  400 Bad Request - Did not find the Order
+  400 Bad Request - Error Incur
   */
 
-  const allOrders = db.getAllOrders()
-  if (allOrders){
+  db.getAllOrders()
+  .then((allOrders)=>{
     res.status(200).send(allOrders)
-  } else {
-    res.status(400).send(allOrders)
-  }
+  })
+  .catch((error)=>{
+    res.status(400).send({error: error.massage})
+  })
+
 })
 
 app.put("/api/join/:orderID", (req,res)=>{
@@ -75,21 +82,27 @@ app.put("/api/join/:orderID", (req,res)=>{
 
   Return:
   200 Updated
-  400 Bad Request - Did not find the Order
+  400 Bad Request - Passengers reach the Maximum
   401 Unauthorized - Only signed in users can Join
 
   */
 
-  if (!req.body.userId){
-    res.status(401).send("No user Logged in")
+  if (!req.body.username){
+    res.status(401).send("Only signed in users can Join")
   } else {
-    db.joinOrder(req.params.orderID, req.body.userId)
-    res.status(201).send("Ok")
+    db.joinOrder(req.params.orderID, req.body.username)
+    .then((response)=>{
+      if (response){
+        res.status(201).send("Join Successfully")
+      } else {
+        res.status(400).send("Passengers reach the Maximum")
+      }
+    })
   }
 })
 
 
-app.delete("/api/join/:orderID", (req,res) => {
+app.delete("/api/delete/:orderID", (req,res) => {
   /*
   Delete an Order
 
@@ -99,19 +112,34 @@ app.delete("/api/join/:orderID", (req,res) => {
   401 Unauthorized - Only signed in users can Join
 
   */
-  db.deleteOrder(req.params.orderID)
-  res.status(201).send("Deleted")
+  db.deleteOrder(req.params.orderID, req.body.ownerId)
+  .then(response=>{
+    if(response===true){
+      res.status(201).send("Deleted")
+    } else {
+      res.status(401).send("Unauthorized Behaviour")
+    }
+  })
 })
 
-app.get("/api/join/:ownerID", (req,res)=>{
+app.get("/api/owner/:ownerId", (req,res)=>{
   /* 
-  Read All Order for A Owner
+  Read All Orders for A Owner
 
+  Return:
+  200 Read
+  400 No Order for the users or No such User
 
   */
-
-  const orders = db.GetOwnerOrders(req.params.ownerID)
-  res.status(200).send(orders)
+  console.log(req.params.ownerId==="WrfLu3AEhqTABwo8n1dMjdARlT92")
+  db.GetOwnerOrders(req.params.ownerId)
+  .then((userOrder)=>{
+    if (userOrder) {
+      res.status(200).send(userOrder)
+    } else {
+      res.status(400).send("No Order Exist for the User")
+    }
+  })
 })
 
 

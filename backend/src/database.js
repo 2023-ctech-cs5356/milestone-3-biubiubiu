@@ -33,7 +33,9 @@ export const createOrder = async (order) => {
     "max":order.max,
   }
 
-  await firestoreDb.collection("orders").add(orderInfo)
+  const orderRef = await firestoreDb.collection("orders").add(orderInfo)
+  const newOrder = await orderRef.get()
+  const newOrderCreate = {id:newOrder.id, ...newOrder.data()}
 
   // Check whether the Users exist
   const ownerInfo = await firestoreDb.collection("owners").doc(order.ownerId).get()
@@ -48,6 +50,8 @@ export const createOrder = async (order) => {
   await firestoreDb.collection("owners").doc(order.ownerId).update({
     orders: firebase.firestore.FieldValue.arrayUnion(orderInfo)
   })
+
+  return newOrderCreate
   
 };
 
@@ -58,43 +62,60 @@ export const getAllOrders = async() => {
   querySnapshot.forEach((doc)=>{
     orders.push({id:doc.id, ...doc.data()})
   })
-  console.log("Data:", orders)
+  //console.log("Data:", orders)
   return orders
 }
 
 
-/// Delete order by order ID
-export const deleteOrder = async(order) =>{
-  await firestoreDb.collection("orders").doc(order.id).delete() // id property has been added in the getAllOrders funtion
+/// Delete order by order ID, only user who create it can delete it
+export const deleteOrder = async(orderId, ownerId) =>{
+  const orderRef = firestoreDb.collection("orders").doc(orderId)
+  const orderInfo = await orderRef.get()
+
+  if (orderInfo.exists) {
+    const orderData = orderInfo.data()
+    if (orderData.ownerId === ownerId){
+      orderRef.delete()
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+
 }
 
 
 /// Update the Order for its time
 export const updateOrderTime = async(order, newTime) => {
-  await firestoreDb.collection('orders').doc(order.id).update({ // id property has been added in the getAllOrders funtion
+  await firestoreDb.collection('orders').doc(order.id).update({
     time:newTime
   })
 }
 
 /// Join to an Order
-export const joinOrder = async(orderId, userName) => {
+export const joinOrder = async(orderId, username) => {
   const orderInfo = await firestoreDb.collection("orders").doc(orderId).get()
   if (orderInfo.data().passenger.length<orderInfo.data().max){
     await firestoreDb.collection("orders").doc(orderId).update({
-      passenger: firebase.firestore.FieldValue.arrayUnion(userName)
+      passenger: firebase.firestore.FieldValue.arrayUnion(username)
     })
+    return orderInfo.data()
+  } else {
+    return null
   }
 }
 
-/// Read Order for an Owner
+/// Read Order for an Owner, Only the Owner itself can access its own orders
 export const GetOwnerOrders = async(ownerId) => {
-  
+  console.log(ownerId)
   const ownerInfo = await firestoreDb.collection("owners").doc(ownerId).get()
-  const orders = ownerInfo.data().orders
+  const userOrders = ownerInfo.data() //Need to Fix
+  console.log(userOrders)
 
-  return orders
+  return userOrders
 }
 
 // getAllOrders()
-joinOrder("1zgNdim9bPtqOySzljUs","HHAH" )
-// updateOrderTime("LnQaNWTPftsA6kjZlXRM",21312)
+//GetOwnerOrders("WrfLu3AEhqTABwo8n1dMjdARlT92")
