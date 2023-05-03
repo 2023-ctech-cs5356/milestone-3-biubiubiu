@@ -30,6 +30,36 @@ const uiConfig = {
 };
 
 function Home() {
+  const [orderList, setOrderList] = useState([]);
+
+  const getAllOrders = () => {
+    fetch("http://localhost:8080/api/order")
+      .then((res) => res.json())
+      .then((res) => {
+        res = res.map((item) => {
+          item.time.seconds = new Date(item.time.seconds).toLocaleString();
+          return item;
+        });
+        setOrderList(res);
+      });
+  };
+
+  const handelJoinCar = (item) => {
+    fetch("http://localhost:8080/api/join/" + item.id, {
+      method: "put",
+      body: JSON.stringify({
+        username: firebase.auth().currentUser.displayName,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      // .then((data) => data.text())
+      // .then((res) => {
+      //   console.log("res", res);
+      // });
+  };
+
   const handleSubmit = (e) => {
     console.log(
       firebase.auth().currentUser.uid,
@@ -50,7 +80,9 @@ function Home() {
       }),
     }).then((response) => {
       if (response.ok) {
+        getAllOrders();
         console.log("Add Order Ok");
+        alert("Creat Successfully");
       }
     });
   };
@@ -79,6 +111,10 @@ function Home() {
       </div>
     );
   }
+  if (isSignedIn && orderList.length <= 0) {
+    getAllOrders();
+  }
+
   return (
     // <div>
     //   <h1>My App</h1>
@@ -150,7 +186,39 @@ function Home() {
         </div>
       </header>
 
-      <main></main>
+      <main>
+        <ul>
+          <div className="ul_title">All Available Car</div>
+          {orderList.length >= 1 &&
+            orderList.map((item, index) => {
+              return (
+                <li key={index}>
+                  <div>
+                    <p>From:{item.from}</p>
+                    <p>To:{item.to}</p>
+                    <p>Time:{item.time.seconds}</p>
+                    <p>Current Passenger:{item.passenger.length}</p>
+                    <p>Max Passenger:{item.max}</p>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => {
+                        handelJoinCar(item);
+                      }}
+                    >
+                      JoIn Car
+                    </button>
+                    <button>View Map</button>
+                  </div>
+                </li>
+              );
+            })}
+        </ul>
+        {/* <ul>
+          <div className="ul_title">All Available Car</div>
+          <li>li</li>
+        </ul> */}
+      </main>
     </div>
   );
 }

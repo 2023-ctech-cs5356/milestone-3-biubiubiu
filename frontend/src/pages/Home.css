@@ -38,8 +38,9 @@ header .wrap{
     font-weight: bold;
     font-size: 19px;
     color: #000;
+    width: 100px;
 }
-form{
+.wrap form{
     width: 600px;
     display: flex;
     flex-direction: column;
@@ -65,10 +66,38 @@ header .wrap div input{
 .submitBtn{
     background-color: #5feb5c;
     font-weight: 900;
+    border-radius: 0px;
 }
 
 
 main{
-    border: 1px #000 solid;
     margin-top: 30px;
+}
+
+main ul{
+    margin-left: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 68%;
+}
+main ul .ul_title{
+    font-size: 20px;
+    font-weight: bold;
+}
+main ul li{
+    background-color: #d9d9d9;
+    margin-left: 10px;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px  40px;
+}
+
+main ul li div{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around
+}
+main ul li div button{
+    background-color: #5feb5c;
 }
