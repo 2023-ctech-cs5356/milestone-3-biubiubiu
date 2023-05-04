@@ -123,6 +123,7 @@ app.delete("/api/delete/:orderID", (req,res) => {
   })
 })
 
+
 app.get("/api/owner/:ownerID", (req,res)=>{
   /* 
   Read All Orders for A Owner
@@ -134,10 +135,15 @@ app.get("/api/owner/:ownerID", (req,res)=>{
   */
   db.GetOwnerOrders(req.params.ownerID)
   .then((userInfo)=>{
-    const userOrder = userInfo.orders
+    if (userInfo){
+      const userOrder = userInfo.orders
       res.status(200).send(userOrder)
+    } else{ //New user who does not have any order yet
+      res.status(200).send([])
+    }
   })
 })
+
 
 
 
