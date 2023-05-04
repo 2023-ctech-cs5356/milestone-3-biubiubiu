@@ -9,7 +9,7 @@ import "firebase/compat/auth";
 import { useNavigate } from "react-router-dom";
 
 import "./Home.css";
-
+import { Link } from "react-router-dom";
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBZAu21Xnht97pEAqxmNf1CyJHkHFjxudI",
@@ -91,6 +91,8 @@ function Home() {
       }
     });
   };
+
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -247,7 +249,9 @@ function Home() {
                     >
                       JoIn Car
                     </button>
+                    <Link to={`/map/${item.from}/${item.to}`}>
                     <button>View Map</button>
+                    </Link>
                   </div>
                 </li>
               );

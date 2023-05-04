@@ -8,9 +8,7 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import MyOrder from "./pages/MyOrder";
-
-
-
+import Map from "./pages/map"
 
 /**
  * CS-5356-TODO
@@ -34,33 +32,7 @@ import MyOrder from "./pages/MyOrder";
  *
  */
 
-
-
-
 const App = () => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [user, setUser] = useState(null);
-
-  const requiresLogin = Component => {
-    return isSignedIn ? Component : <Navigate to="/login" />;
-  };
-
-  useEffect(() => { // this is to prevent the infinite loop cause by the setState and Fetch
-    console.log("[CS5356] Loading App for the first time");
-    // make a fetch request to our /api/user to check whether they sign in or not
-    fetch('/api/user')
-      .then(response =>{
-        if(response.ok){
-          response.json().then(data=>{
-            setIsSignedIn(true)
-            setUser(data)
-          })
-        } else {
-          setIsSignedIn(false)
-        }
-      })
-      //set isSignedIn & user based on the response
-  }, []);
 
   return (
     <div>
@@ -72,26 +44,11 @@ const App = () => {
             path="/MyOrder"
             element={<MyOrder />}
           />
-          {/* <Route
-            path="/instructor-home"
-            element={requiresLogin(<InstructorHomePage />)}
-          />
-          <Route
-            path="/login"
-            element={
-              <LoginPage
-                onLogin={() => {
-                  setIsSignedIn(true); // when we set state, the app gets rerender
-                }}
-              />
-            }
-          />
-          <Route
-            path="/:sessionCode"
-            element={<ClassSessionPage isSignedIn={isSignedIn} />}
-          />
-          <Route exact path="/logout" element={<LogoutPage />} /> */}
-          <Route exact path="/" element={<Home isSignedIn={isSignedIn} />} />
+
+          <Route exact path="/" element={<Home />} />
+
+          <Route path="/map/:from/:to" element={<Map />} />
+
         </Routes>
       </Router>
     </div>
