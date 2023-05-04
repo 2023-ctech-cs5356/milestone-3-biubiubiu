@@ -86,7 +86,6 @@ app.put("/api/join/:orderID", (req,res)=>{
   401 Unauthorized - Only signed in users can Join
 
   */
-  console.log(req.params.orderID==="3kL9alXRbAT49Mad2Z2h")
 
   if (!req.body.username){
     res.status(401).send("Only signed in users can Join")

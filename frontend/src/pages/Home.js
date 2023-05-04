@@ -186,6 +186,7 @@ function Home() {
             ></input>
           </form>
         </div>
+      
       </header>
 
       <main>
@@ -222,6 +223,7 @@ function Home() {
         </ul> */}
       </main>
     </div>
+    
   );
 }
 
