@@ -45,7 +45,7 @@ function Home() {
   };
 
   const handelJoinCar = (item) => {
-    fetch("http://localhost:8080/api/join/" + item.id, {
+    fetch("api/join/" + item.id, {
       method: "put",
       body: JSON.stringify({
         username: firebase.auth().currentUser.displayName,
@@ -53,6 +53,8 @@ function Home() {
       headers: {
         "Content-Type": "application/json",
       },
+    }).then(()=>{
+      getAllOrders()
     })
       // .then((data) => data.text())
       // .then((res) => {
