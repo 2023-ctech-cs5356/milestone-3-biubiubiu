@@ -148,10 +148,13 @@ function Home() {
             ></input>
           </form>
         </div>
+      
       </header>
 
       <main></main>
+
     </div>
+    
   );
 }
 
