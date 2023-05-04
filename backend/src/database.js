@@ -48,7 +48,7 @@ export const createOrder = async (order) => {
 
   // add the new orders to the users' orders
   await firestoreDb.collection("owners").doc(order.ownerId).update({
-    orders: firebase.firestore.FieldValue.arrayUnion(orderInfo)
+    orders: firebase.firestore.FieldValue.arrayUnion(newOrderCreate)
   })
 
   return newOrderCreate
@@ -76,6 +76,15 @@ export const deleteOrder = async(orderId, ownerId) =>{
     const orderData = orderInfo.data()
     if (orderData.ownerId === ownerId){
       orderRef.delete()
+      const ownerRef = await firestoreDb.collection('owners').doc(ownerId)
+      
+      const itemRemove = await ownerRef.get().then((doc)=>{
+        const data = doc.data()
+        const orders = data.orders;
+        return orders.find(obj=>obj.id===orderId)})
+      ownerRef.update({
+        orders: firebase.firestore.FieldValue.arrayRemove(itemRemove)
+      })
       return true
     } else {
       return false

@@ -51,14 +51,22 @@ function MyOrder() {
       console.log("Here")
   };
 
-  const handelDimiss = (item) => {
-    fetch('/api/delete/' +  firebase.auth().currentUser.uid,{
-        method:'delete',
-        body: JSON.stringify({
-            ownerId: item.ownerId
-        })
+  const handleDismiss = (item) => {
+    console.log(firebase.auth().currentUser.uid)
+    fetch('/api/delete/' +  item.id,{
+        method:'DELETE',
+        body: JSON.stringify({ownerId: firebase.auth().currentUser.uid}),
+        headers: {
+          "Content-Type": "application/json",
+        }
+    })
+    .then((data)=>{
+      console.log(data.body)
     })
   }
+
+
+
 
   const [isSignedIn, setIsSignedIn] = useState(false);
 
@@ -120,7 +128,7 @@ function MyOrder() {
                     <p>Max Passenger:{item.max}</p>
                   </div>
                   <div>
-                    <button onClick={()=>{handelDimiss(item)}} style={{ background: "red" }}>Dimiss</button>
+                    <button onClick={()=>{handleDismiss(item)}} style={{ background: "red" }}>Dismiss</button>
                   </div>
                 </li>
               );
