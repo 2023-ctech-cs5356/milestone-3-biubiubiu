@@ -133,12 +133,9 @@ app.get("/api/owner/:ownerID", (req,res)=>{
 
   */
   db.GetOwnerOrders(req.params.ownerID)
-  .then((userOrder)=>{
-    if (userOrder) {
+  .then((userInfo)=>{
+    const userOrder = userInfo.orders
       res.status(200).send(userOrder)
-    } else {
-      res.status(400).send("No Order Exist for the User")
-    }
   })
 })
 

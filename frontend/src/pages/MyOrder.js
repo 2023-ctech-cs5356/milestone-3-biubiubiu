@@ -37,18 +37,15 @@ function MyOrder() {
   const navigate = useNavigate();
 
   const getMyOrders = () => {
-    fetch("/api/owner/" + firebase.auth().currentUser.uid)
-      .then((res) => res.json())
-      .then((res) => {
-        console.log("res", res);
-        // res = res.orders.map((item) => {
-        //   item.time.seconds = new Date(item.time.seconds).toLocaleString();
-        //   return item;
-        // });
-        setMyOrderList(res.orders);
-        console.log(res.orders)
-      });
-      console.log("Here")
+    fetch("/api/owner/" + firebase.auth().currentUser.uid, {
+      method:'GET'
+    })
+    .then((response)=>{
+        response.json().then((orders)=>{
+          setMyOrderList(orders);
+          console.log("Infinite")
+        })
+      })
   };
 
   const handleDismiss = (item) => {
@@ -60,12 +57,14 @@ function MyOrder() {
           "Content-Type": "application/json",
         }
     })
-    .then((data)=>{
-      console.log(data.body)
+    .then((response)=>{
+      if(response.ok){
+        getMyOrders()
+      }
     })
   }
 
-
+  useEffect(()=>{getMyOrders()}, [])
 
 
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -93,54 +92,55 @@ function MyOrder() {
     );
   }
 
-  if (isSignedIn && myOrderList.length <= 0) {
-    getMyOrders();
+  if (isSignedIn && myOrderList.length >= 0) {
+
+    return (
+      <div className="Home">
+        <nav>
+          <span>Welcome {firebase.auth().currentUser.displayName} !</span>
+          <div>
+            <button
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              Main Page
+            </button>
+            <button onClick={() => firebase.auth().signOut()}>Log out</button>
+          </div>
+        </nav>
+  
+        <main>
+          <ul>
+            <div className="ul_title">All Available Car</div>
+            {myOrderList.length >= 1 &&
+              myOrderList.map((item, index) => {
+                return (
+                  <li key={index}>
+                    <div>
+                      <p>From:{item.from}</p>
+                      <p>To:{item.to}</p>
+                      <p>Time:{item.time.seconds}</p>
+                      <p>Current Passenger:{item.passenger.length}</p>
+                      <p>Max Passenger:{item.max}</p>
+                    </div>
+                    <div>
+                      <button onClick={()=>{handleDismiss(item)}} style={{ background: "red" }}>Dismiss</button>
+                    </div>
+                  </li>
+                );
+              })}
+          </ul>
+          {/* <ul>
+            <div className="ul_title">All Available Car</div>
+            <li>li</li>
+          </ul> */}
+        </main>
+      </div>
+    );
+  }
+  
   }
 
-  return (
-    <div className="Home">
-      <nav>
-        <span>Welcome {firebase.auth().currentUser.displayName} !</span>
-        <div>
-          <button
-            onClick={() => {
-              navigate("/");
-            }}
-          >
-            Main Page
-          </button>
-          <button onClick={() => firebase.auth().signOut()}>Log out</button>
-        </div>
-      </nav>
-
-      <main>
-        <ul>
-          <div className="ul_title">All Available Car</div>
-          {myOrderList.length >= 1 &&
-            myOrderList.map((item, index) => {
-              return (
-                <li key={index}>
-                  <div>
-                    <p>From:{item.from}</p>
-                    <p>To:{item.to}</p>
-                    <p>Time:{item.time.seconds}</p>
-                    <p>Current Passenger:{item.passenger.length}</p>
-                    <p>Max Passenger:{item.max}</p>
-                  </div>
-                  <div>
-                    <button onClick={()=>{handleDismiss(item)}} style={{ background: "red" }}>Dismiss</button>
-                  </div>
-                </li>
-              );
-            })}
-        </ul>
-        {/* <ul>
-          <div className="ul_title">All Available Car</div>
-          <li>li</li>
-        </ul> */}
-      </main>
-    </div>
-  );
-}
-
+  
 export default MyOrder;
