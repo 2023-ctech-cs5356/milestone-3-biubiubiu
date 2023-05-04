@@ -6,6 +6,8 @@ import firebase from "firebase/compat/app";
 // This imports the Firebase Auth libraries
 import "firebase/compat/auth";
 
+import { useNavigate } from "react-router-dom";
+
 import "./Home.css";
 
 // Your web app's Firebase configuration
@@ -30,22 +32,26 @@ const uiConfig = {
 };
 
 function Home() {
+  const navigate = useNavigate();
+  const [allOrderList, setAllOrderList] = useState([]);
   const [orderList, setOrderList] = useState([]);
+  const [isGet, setIsGet] = useState(false);
 
   const getAllOrders = () => {
-    fetch("http://localhost:8080/api/order")
+    fetch("/api/order")
       .then((res) => res.json())
       .then((res) => {
         res = res.map((item) => {
-          item.time.seconds = new Date(item.time.seconds).toLocaleString();
+          // item.time.seconds = new Date(item.time.seconds).toLocaleString();
           return item;
         });
         setOrderList(res);
+        setAllOrderList(res)
       });
   };
 
-  const handelJoinCar = (item) => {
-    fetch("api/join/" + item.id, {
+  const handelJoinCar = async (item) => {
+    await fetch("/api/join/" + item.id, {
       method: "put",
       body: JSON.stringify({
         username: firebase.auth().currentUser.displayName,
@@ -53,13 +59,9 @@ function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then(()=>{
-      getAllOrders()
-    })
-      // .then((data) => data.text())
-      // .then((res) => {
-      //   console.log("res", res);
-      // });
+    }).then(() => {
+      getAllOrders();
+    });
   };
 
   const handleSubmit = (e) => {
@@ -76,6 +78,7 @@ function Home() {
       body: JSON.stringify({
         from: e.target.from.value,
         to: e.target.to.value,
+        time: new Date(e.target.time.value).getTime(),
         max: e.target.max.value,
         ownerId: firebase.auth().currentUser.uid,
         owner: firebase.auth().currentUser.displayName,
@@ -84,9 +87,49 @@ function Home() {
       if (response.ok) {
         getAllOrders();
         console.log("Add Order Ok");
-        alert("Creat Successfully");
+        alert("Add Successfully");
       }
     });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const newOrder = allOrderList.filter((item) => {
+      let _item = item;
+      if (e.target.from.value) {
+        if (item.from !== e.target.from.value) {
+          _item = null;
+        }
+      }
+      if (e.target.to.value) {
+        if (item.to !== e.target.to.value) {
+          _item = null;
+        }
+      }
+      if (e.target.time.value) {
+        if (item.time !== e.target.time.value) {
+          _item = null;
+        }
+      }
+      if (e.target.max.value) {
+        if (item.max !== e.target.max.value) {
+          _item = null;
+        }
+      }
+      if (_item) {
+        return _item;
+      }
+    });
+    if (
+      !e.target.from.value &&
+      !e.target.to.value &&
+      !e.target.time.value &&
+      !e.target.max.value
+    ) {
+      setOrderList(allOrderList);
+    } else {
+      setOrderList(newOrder);
+    }
   };
 
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -113,31 +156,17 @@ function Home() {
       </div>
     );
   }
-  if (isSignedIn && orderList.length <= 0) {
+  if (isSignedIn && orderList.length <= 0 && !isGet) {
     getAllOrders();
+    setIsGet(true)
   }
 
   return (
-    // <div>
-    //   <h1>My App</h1>
-    //   <p>Welcome - You are now signed-in - {isSignedIn}!</p>
-    //   <form onSubmit={handleSubmit}>
-    //     <div>from</div>
-    //     <input name="from"></input>
-    //     <div>To</div>
-    //     <input name="to"></input>
-    //     <div>Max</div>
-    //     <input name="max"></input>
-    //     <input type="submit"/>
-    //   </form>
-    //   <br></br>
-    //   <button class="is-danger" onClick={()=>firebase.auth().signOut()}>sign out</button>
-    // </div>
     <div className="Home">
       <nav>
         <span>Welcome {firebase.auth().currentUser.displayName} !</span>
         <div>
-          <button>My Order</button>
+          <button onClick={() => { navigate('./MyOrder') }}>My Order</button>
           <button onClick={() => firebase.auth().signOut()}>Log out</button>
         </div>
       </nav>
@@ -154,6 +183,10 @@ function Home() {
               <input name="to"></input>
             </div>
             <div>
+              <span>Time:</span>
+              <input name="time" type="datetime-local"></input>
+            </div>
+            <div>
               <span>Max Passenger:</span>
               <input name="max"></input>
             </div>
@@ -166,7 +199,7 @@ function Home() {
         </div>
         <div className="wrap">
           <span className="titleName">Search by :</span>
-          <form>
+          <form onSubmit={handleSearch}>
             <div>
               <span>From:</span>
               <input name="from"></input>
@@ -174,6 +207,10 @@ function Home() {
             <div>
               <span>To:</span>
               <input name="to"></input>
+            </div>
+            <div>
+              <span>Time:</span>
+              <input name="time" type="datetime-local"></input>
             </div>
             <div>
               <span>Max Passenger:</span>
@@ -186,7 +223,6 @@ function Home() {
             ></input>
           </form>
         </div>
-      
       </header>
 
       <main>
@@ -199,7 +235,7 @@ function Home() {
                   <div>
                     <p>From:{item.from}</p>
                     <p>To:{item.to}</p>
-                    <p>Time:{item.time.seconds}</p>
+                    <p>Time:{item.time?.seconds}</p>
                     <p>Current Passenger:{item.passenger.length}</p>
                     <p>Max Passenger:{item.max}</p>
                   </div>
@@ -223,7 +259,6 @@ function Home() {
         </ul> */}
       </main>
     </div>
-    
   );
 }
 

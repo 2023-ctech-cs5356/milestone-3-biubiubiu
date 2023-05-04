@@ -7,11 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import LoginPage from "./pages/LoginPage";
-import LogoutPage from "./pages/LogoutPage";
-import InstructorHomePage from "./pages/InstructorHomePage";
-import ClassSessionPage from "./pages/ClassSessionPage";
-import Navbar from "./components/Navbar";
+import MyOrder from "./pages/MyOrder";
 
 
 
@@ -69,9 +65,14 @@ const App = () => {
   return (
     <div>
       <Router>
-        <Navbar isSignedIn={isSignedIn} username={user?.userId ?? null} />
+        {/* <Navbar isSignedIn={isSignedIn} username={user?.userId ?? null} /> */}
         <Routes>
-          <Route
+        
+        <Route
+            path="/MyOrder"
+            element={<MyOrder />}
+          />
+          {/* <Route
             path="/instructor-home"
             element={requiresLogin(<InstructorHomePage />)}
           />
@@ -89,7 +90,7 @@ const App = () => {
             path="/:sessionCode"
             element={<ClassSessionPage isSignedIn={isSignedIn} />}
           />
-          <Route exact path="/logout" element={<LogoutPage />} />
+          <Route exact path="/logout" element={<LogoutPage />} /> */}
           <Route exact path="/" element={<Home isSignedIn={isSignedIn} />} />
         </Routes>
       </Router>
