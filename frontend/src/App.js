@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./App.css";
 import {
   BrowserRouter as Router,
@@ -9,6 +9,9 @@ import {
 import Home from "./pages/Home";
 import MyOrder from "./pages/MyOrder";
 import Map from "./pages/map"
+import Welcome from "./pages/WelcomePage"
+import Login from "./pages/Login"
+
 
 /**
  * CS-5356-TODO
@@ -39,16 +42,14 @@ const App = () => {
       <Router>
         {/* <Navbar isSignedIn={isSignedIn} username={user?.userId ?? null} /> */}
         <Routes>
-        
+        <Route path = "/" element={< Welcome/> }/>
         <Route
             path="/MyOrder"
             element={<MyOrder />}
           />
-
-          <Route exact path="/" element={<Home />} />
-
+          <Route exact path="/home" element={<Home />} />
           <Route path="/map/:from/:to" element={<Map />} />
-
+          <Route path = '/login' element ={<Login />} />
         </Routes>
       </Router>
     </div>
