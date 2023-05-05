@@ -1,40 +1,18 @@
 import React, { useState, useEffect } from "react";
-// This uses the pre-built login form
-import { StyledFirebaseAuth } from "react-firebaseui";
+
 // This imports firebase using the Firebase SDK v8 style
 import firebase from "firebase/compat/app";
 // This imports the Firebase Auth libraries
 import "firebase/compat/auth";
 
 import { useNavigate } from "react-router-dom";
-
 import "./Home.css";
 import { Link } from "react-router-dom";
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBZAu21Xnht97pEAqxmNf1CyJHkHFjxudI",
-  authDomain: "cs5356-milestone2-2b364.firebaseapp.com",
-  projectId: "cs5356-milestone2-2b364",
-  storageBucket: "cs5356-milestone2-2b364.appspot.com",
-  messagingSenderId: "893513623486",
-  appId: "1:893513623486:web:e869fa4112a7b1e1c5bbef",
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const uiConfig = {
-  signInFlow: "popup",
-  signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
-  callbacks: {
-    // Avoid redirects after sign-in.
-    signInSuccessWithAuthResult: () => false,
-  },
-};
+import ShowOrders from "../components/showOrders";
 
 function Home() {
   const navigate = useNavigate();
   const [orderList, setOrderList] = useState([]);
-
 
   const getAllOrders = () => {
     fetch("/api/order")
@@ -49,26 +27,30 @@ function Home() {
 
   useEffect(()=>{getAllOrders()}, [])
 
-  const handelJoinCar = async (item) => {
-    await fetch("/api/join/" + item.id, {
-      method: "put",
-      body: JSON.stringify({
-        username: firebase.auth().currentUser.displayName,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then(() => {
-      getAllOrders();
-    });
+  const handleJoinCar = async (item) => {
+    if (!firebase.auth().currentUser){
+      navigate('/login')
+    } else {
+      await fetch("/api/join/" + item.id, {
+        method: "put",
+        body: JSON.stringify({
+          username: firebase.auth().currentUser.displayName,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(() => {
+        getAllOrders();
+      });
+    }
   };
 
   const handleSubmit = (e) => {
-    console.log(
-      firebase.auth().currentUser.uid,
-      firebase.auth().currentUser.displayName
-    );
     e.preventDefault();
+
+    if (!firebase.auth().currentUser){
+      navigate('/login')
+    } else {
     fetch("/api/order", {
       method: "POST",
       headers: {
@@ -89,6 +71,7 @@ function Home() {
         alert("Add Successfully");
       }
     });
+  }
   };
 
   const handleSearch = (e) => {
@@ -116,39 +99,21 @@ function Home() {
     }
   };
 
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  const handleLog = () =>{
+    if (firebase.auth().currentUser){
+      firebase.auth().signOut()
+      .then(()=>{navigate('/')}
+    )} else {
+      {navigate('/login')}
+    }}
 
-  useEffect(() => {
-    const unregisterAuthObserver = firebase
-      .auth()
-      .onAuthStateChanged((user) => {
-        // this gets called whenever a user signs in or out
-        setIsSignedIn(!!user); //!! convert user to boolean
-      });
-    return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-  }, []);
-
-  if (!isSignedIn) {
-    return (
-      <div>
-        <h1>Big CarPool </h1>
-        <p>Please sign-in:</p>
-        <StyledFirebaseAuth
-          uiConfig={uiConfig}
-          firebaseAuth={firebase.auth()}
-        />
-      </div>
-    );
-  }
-
-  if (isSignedIn && orderList.length >=0) {
     return (
       <div className="Home">
         <nav>
-          <span>Welcome {firebase.auth().currentUser.displayName} !</span>
+          <span className="has-text-primary-dark title is-3">Welcome, {firebase.auth().currentUser ? firebase.auth().currentUser.displayName:"User"} !</span>
           <div>
-            <button onClick={() => { navigate('./MyOrder') }}>My Order</button>
-            <button onClick={() => firebase.auth().signOut()}>Log out</button>
+            <button onClick={() => { if (firebase.auth().currentUser) {navigate('/MyOrder')} else {navigate('/login')} }}>My Order</button>
+            <button onClick = {handleLog}>{firebase.auth().currentUser? "Log Out" : "Log In"}</button>
           </div>
         </nav>
   
@@ -197,47 +162,9 @@ function Home() {
             </form>
           </div>
         </header>
-  
-        <main>
-          <ul>
-            <div className="ul_title">All Available Car</div>
-            {orderList.length >= 1 &&
-              orderList.map((item, index) => {
-                return (
-                  <li key={index}>
-                    <div>
-                      <p>From:{item.from}</p>
-                      <p>To:{item.to}</p>
-                      <p>Time:{new Date(item.time).toLocaleString()}</p>
-                      <p>Current Passenger:{item.passenger.length}</p>
-                      <p>Max Passenger:{item.max}</p>
-                    </div>
-                    <div>
-                      <button
-                        onClick={() => {
-                          handelJoinCar(item);
-                        }}
-                      >
-                        JoIn Car
-                      </button>
-                      <Link to={`/map/${item.from}/${item.to}`}>
-                      <button>View Map</button>
-                      </Link>
-                    </div>
-                  </li>
-                );
-              })}
-          </ul>
-          {/* <ul>
-            <div className="ul_title">All Available Car</div>
-            <li>li</li>
-          </ul> */}
-        </main>
+
+        <ShowOrders orderList={orderList} handleJoinCar={handleJoinCar} />
       </div>
     );
-  }
-  
-  }
-
-
+    } 
 export default Home;

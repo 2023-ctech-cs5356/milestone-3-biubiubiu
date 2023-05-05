@@ -5,6 +5,7 @@ import { StyledFirebaseAuth } from "react-firebaseui";
 import firebase from "firebase/compat/app";
 // This imports the Firebase Auth libraries
 import "firebase/compat/auth";
+import nightImage from "./night.jpg"
 
 
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,18 @@ const uiConfig = {
 
 
 function Login () {
+    const styles = {
+        backgroundImage: `url(${nightImage})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#fff",
+    
+    };
     const [isSignedIn, setIsSignedIn] = useState(false);
     const navigate = useNavigate()
     useEffect(() => {
@@ -50,13 +63,13 @@ function Login () {
 
     if (!isSignedIn) {
         return (
-        <div>
-            <h1>Big CarPool</h1>
-            <p>Please sign-in:</p>
+        <div style = {styles}>
+            <h1 className="has-text-centered title is-1 has-text-primary-dark" style ={{margin: "20px"}}>Big CarPool</h1>
+            <h1 className="has-text-success-light title is-3" style ={{margin: "20px"}}>Taking you to any place!</h1>
             <StyledFirebaseAuth
             uiConfig={uiConfig}
             firebaseAuth={firebase.auth()}
-            />
+            style ={{margin: "20px"}}/>
         </div>
         );
     } else {

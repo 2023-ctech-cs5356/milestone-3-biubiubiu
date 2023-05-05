@@ -10,6 +10,7 @@ const Welcome = () => {
         height: "100vh",
         display: "flex",
         alignItems: "center",
+        flexDirection: "column",
         justifyContent: "center",
         color: "#fff",
 
@@ -21,10 +22,13 @@ const Welcome = () => {
     return (
     
     <div style = {styles}>
-        <Link to = '/Home'>
+        <h1 className="has-text-centered title is-1 has-text-primary-dark" style ={{margin: "20px"}}>Big CarPool, A way to travel save and cheap!</h1>
+        <Link to = '/home'>
             <button style={buttonStyles}>Explore</button>
         </Link>
-        <button style={buttonStyles}>Sign In</button>
+        <Link to = '/login'>
+            <button style={buttonStyles}>Sign In</button>
+        </Link>
     </div>
 
     ) 

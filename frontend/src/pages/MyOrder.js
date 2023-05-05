@@ -97,16 +97,16 @@ function MyOrder() {
     return (
       <div className="Home">
         <nav>
-          <span>Welcome {firebase.auth().currentUser.displayName} !</span>
+          <span className="has-text-primary-dark title is-3">Welcome {firebase.auth().currentUser.displayName} !</span>
           <div>
             <button
               onClick={() => {
-                navigate("/");
+                navigate("/home");
               }}
             >
               Main Page
             </button>
-            <button onClick={() => firebase.auth().signOut()}>Log out</button>
+            <button onClick={() => firebase.auth().signOut()}>Log Out</button>
           </div>
         </nav>
   
