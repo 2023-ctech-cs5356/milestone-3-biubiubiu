@@ -41,7 +41,6 @@ function Home() {
       .then((res) => res.json())
       .then((res) => {
         res = res.map((item) => {
-          // item.time.seconds = new Date(item.time.seconds).toLocaleString();
           return item;
         });
         setOrderList(res);
@@ -94,7 +93,7 @@ function Home() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const newOrder = orderList.filter((item) => {
+    const searchOrder = orderList.filter((item) => {
       let _item = item;
       if (e.target.from.value) {
         if (item.from !== e.target.from.value) {
@@ -110,13 +109,10 @@ function Home() {
         return _item;
       }
     });
-    if (
-      !e.target.from.value &&
-      !e.target.to.value 
-    ) {
-      setOrderList(orderList);
+    if (!e.target.from.value && !e.target.to.value) {
+      getAllOrders()
     } else {
-      setOrderList(newOrder);
+      setOrderList(searchOrder);
     }
   };
 
