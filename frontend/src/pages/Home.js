@@ -33,9 +33,8 @@ const uiConfig = {
 
 function Home() {
   const navigate = useNavigate();
-  const [allOrderList, setAllOrderList] = useState([]);
   const [orderList, setOrderList] = useState([]);
-  const [isGet, setIsGet] = useState(false);
+
 
   const getAllOrders = () => {
     fetch("/api/order")
@@ -46,9 +45,10 @@ function Home() {
           return item;
         });
         setOrderList(res);
-        setAllOrderList(res)
       });
   };
+
+  useEffect(()=>{getAllOrders()}, [])
 
   const handelJoinCar = async (item) => {
     await fetch("/api/join/" + item.id, {
@@ -78,7 +78,7 @@ function Home() {
       body: JSON.stringify({
         from: e.target.from.value,
         to: e.target.to.value,
-        time: new Date(e.target.time.value).getTime(),
+        time: e.target.time.value,
         max: e.target.max.value,
         ownerId: firebase.auth().currentUser.uid,
         owner: firebase.auth().currentUser.displayName,
@@ -92,11 +92,9 @@ function Home() {
     });
   };
 
-
-
   const handleSearch = (e) => {
     e.preventDefault();
-    const newOrder = allOrderList.filter((item) => {
+    const newOrder = orderList.filter((item) => {
       let _item = item;
       if (e.target.from.value) {
         if (item.from !== e.target.from.value) {
@@ -108,27 +106,15 @@ function Home() {
           _item = null;
         }
       }
-      if (e.target.time.value) {
-        if (item.time !== e.target.time.value) {
-          _item = null;
-        }
-      }
-      if (e.target.max.value) {
-        if (item.max !== e.target.max.value) {
-          _item = null;
-        }
-      }
       if (_item) {
         return _item;
       }
     });
     if (
       !e.target.from.value &&
-      !e.target.to.value &&
-      !e.target.time.value &&
-      !e.target.max.value
+      !e.target.to.value 
     ) {
-      setOrderList(allOrderList);
+      setOrderList(orderList);
     } else {
       setOrderList(newOrder);
     }
@@ -158,112 +144,104 @@ function Home() {
       </div>
     );
   }
-  if (isSignedIn && orderList.length <= 0 && !isGet) {
-    getAllOrders();
-    setIsGet(true)
+
+  if (isSignedIn && orderList.length >=0) {
+    return (
+      <div className="Home">
+        <nav>
+          <span>Welcome {firebase.auth().currentUser.displayName} !</span>
+          <div>
+            <button onClick={() => { navigate('./MyOrder') }}>My Order</button>
+            <button onClick={() => firebase.auth().signOut()}>Log out</button>
+          </div>
+        </nav>
+  
+        <header>
+          <div className="wrap">
+            <form onSubmit={handleSubmit}>
+              <div>
+                <span>From:</span>
+                <input name="from"></input>
+              </div>
+              <div>
+                <span>To:</span>
+                <input name="to"></input>
+              </div>
+              <div>
+                <span>Time:</span>
+                <input name="time" type="datetime-local"></input>
+              </div>
+              <div>
+                <span>Max Passenger:</span>
+                <input name="max"></input>
+              </div>
+              <input
+                className="submitBtn button"
+                type="submit"
+                value={"Create A TrIp"}
+              ></input>
+            </form>
+          </div>
+          <div className="wrap">
+            <span className="titleName">Search by :</span>
+            <form onSubmit={handleSearch}>
+              <div>
+                <span>From:</span>
+                <input name="from"></input>
+              </div>
+              <div>
+                <span>To:</span>
+                <input name="to"></input>
+              </div>
+              <input
+                className="submitBtn button"
+                type="submit"
+                value={"Search"}
+              ></input>
+            </form>
+          </div>
+        </header>
+  
+        <main>
+          <ul>
+            <div className="ul_title">All Available Car</div>
+            {orderList.length >= 1 &&
+              orderList.map((item, index) => {
+                return (
+                  <li key={index}>
+                    <div>
+                      <p>From:{item.from}</p>
+                      <p>To:{item.to}</p>
+                      <p>Time:{new Date(item.time).toLocaleString()}</p>
+                      <p>Current Passenger:{item.passenger.length}</p>
+                      <p>Max Passenger:{item.max}</p>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => {
+                          handelJoinCar(item);
+                        }}
+                      >
+                        JoIn Car
+                      </button>
+                      <Link to={`/map/${item.from}/${item.to}`}>
+                      <button>View Map</button>
+                      </Link>
+                    </div>
+                  </li>
+                );
+              })}
+          </ul>
+          {/* <ul>
+            <div className="ul_title">All Available Car</div>
+            <li>li</li>
+          </ul> */}
+        </main>
+      </div>
+    );
+  }
+  
   }
 
-  return (
-    <div className="Home">
-      <nav>
-        <span>Welcome {firebase.auth().currentUser.displayName} !</span>
-        <div>
-          <button onClick={() => { navigate('./MyOrder') }}>My Order</button>
-          <button onClick={() => firebase.auth().signOut()}>Log out</button>
-        </div>
-      </nav>
-
-      <header>
-        <div className="wrap">
-          <form onSubmit={handleSubmit}>
-            <div>
-              <span>From:</span>
-              <input name="from"></input>
-            </div>
-            <div>
-              <span>To:</span>
-              <input name="to"></input>
-            </div>
-            <div>
-              <span>Time:</span>
-              <input name="time" type="datetime-local"></input>
-            </div>
-            <div>
-              <span>Max Passenger:</span>
-              <input name="max"></input>
-            </div>
-            <input
-              className="submitBtn button"
-              type="submit"
-              value={"Create A TrIp"}
-            ></input>
-          </form>
-        </div>
-        <div className="wrap">
-          <span className="titleName">Search by :</span>
-          <form onSubmit={handleSearch}>
-            <div>
-              <span>From:</span>
-              <input name="from"></input>
-            </div>
-            <div>
-              <span>To:</span>
-              <input name="to"></input>
-            </div>
-            <div>
-              <span>Time:</span>
-              <input name="time" type="datetime-local"></input>
-            </div>
-            <div>
-              <span>Max Passenger:</span>
-              <input name="max"></input>
-            </div>
-            <input
-              className="submitBtn button"
-              type="submit"
-              value={"Search"}
-            ></input>
-          </form>
-        </div>
-      </header>
-
-      <main>
-        <ul>
-          <div className="ul_title">All Available Car</div>
-          {orderList.length >= 1 &&
-            orderList.map((item, index) => {
-              return (
-                <li key={index}>
-                  <div>
-                    <p>From:{item.from}</p>
-                    <p>To:{item.to}</p>
-                    <p>Time:{item.time?.seconds}</p>
-                    <p>Current Passenger:{item.passenger.length}</p>
-                    <p>Max Passenger:{item.max}</p>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => {
-                        handelJoinCar(item);
-                      }}
-                    >
-                      JoIn Car
-                    </button>
-                    <Link to={`/map/${item.from}/${item.to}`}>
-                    <button>View Map</button>
-                    </Link>
-                  </div>
-                </li>
-              );
-            })}
-        </ul>
-        {/* <ul>
-          <div className="ul_title">All Available Car</div>
-          <li>li</li>
-        </ul> */}
-      </main>
-    </div>
-  );
-}
 
 export default Home;

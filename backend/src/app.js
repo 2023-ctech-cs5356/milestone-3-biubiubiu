@@ -44,7 +44,7 @@ app.post("/api/order", (req, res) => {
     db.createOrder({
       from:req.body.from,
       to:req.body.to,
-      // time:req.body.time,
+      time:req.body.time,
       ownerId: req.body.ownerId,
       owner:req.body.owner,
       max:req.body.max,

@@ -26,7 +26,7 @@ export const createOrder = async (order) => {
   const orderInfo = {
     "from": order.from,
     "to":order.to,
-    "time": new Date(),
+    "time": order.time,
     "owner":order.owner,
     "ownerId":order.ownerId,
     "passenger":[order.owner],
