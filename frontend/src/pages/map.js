@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 function Map() {
-
+  const navigate = useNavigate()
   const [mapLoaded, setMapLoaded] = useState(false);
   const {from,to}=useParams()
 
@@ -66,7 +67,9 @@ function Map() {
   return (
     <div>
       {mapLoaded && <div id="map" style={{ width: "100%", height: "500px" }} />}
+      <button onClick={()=>navigate('/home')}>Back</button>
     </div>
+
   );
 }
 
